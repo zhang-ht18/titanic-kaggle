@@ -1,25 +1,46 @@
 import pandas as pd
-#import numpy as np
+import matplotlib.pyplot as plt
 train_set_path = "./train.csv"
 
-data = pd.read_csv(train_set_path)
+train_data = pd.read_csv(train_set_path)
 
-miss_age = data[pd.isnull(data.Age)]
-class_one_miss_age = miss_age[miss_age.Pclass == 1]
-print(class_one_miss_age.head(n = 30).Sex)
+women = train_data.loc[train_data.Sex == 'female']['Survived']
+rate_women = sum(women) / len(women)
+print('{0} women survived'.format(rate_women))
 
-# feature_names = ['Age', 'Pclass']
+men = train_data.loc[train_data.Sex == 'male']['Survived']
+rate_men = sum(men) / len(men)
+print('{0} men survived'.format(rate_men))
 
-# age_class = data[feature_names]
-# miss_age_class = age_class[pd.isnull(age_class.Age)]
-# age_class_map = {1:0,2:0,3:0}
-# for index, row in miss_age_class.iterrows():
-#     if row['Pclass'] in age_class_map:
-#         age_class_map[row['Pclass']] += 1
-#     else:
-#         age_class_map[row['Pclass']] = 1
+A_class = train_data.loc[train_data.Pclass == 1]['Survived']
+rate_A_class = sum(A_class) / len(A_class)
+print('{0} A class survived'.format(rate_A_class))
 
-# print(age_class_map)
+B_class = train_data.loc[train_data.Pclass == 2]['Survived']
+rate_B_class = sum(B_class) / len(B_class)
+print('{0} B class survived'.format(rate_B_class))
+
+C_class = train_data.loc[train_data.Pclass == 3]['Survived']
+rate_C_class = sum(C_class) / len(C_class)
+print('{0} C class survived'.format(rate_C_class))
+
+S_destination = train_data.loc[train_data.Embarked == 'S']['Survived']
+rate_S_destination = sum(S_destination) / len(S_destination)
+print("{0} S destination survived".format(rate_S_destination))
+
+C_destination = train_data.loc[train_data.Embarked == 'C']['Survived']
+rate_C_destination = sum(C_destination) / len(C_destination)
+print("{0} C destination survived".format(rate_C_destination))
+
+Q_destination = train_data.loc[train_data.Embarked == 'Q']['Survived']
+rate_Q_destination = sum(Q_destination) / len(Q_destination)
+print("{0} Q destination survived".format(rate_Q_destination))
+
+cabin = train_data.loc[train_data["Age"].isnull() ]['Survived']
+rate_cabin = sum(cabin) / len(cabin)
+print(cabin)
+print("{0} with cabin survived".format(rate_cabin))
+
 
 
 
