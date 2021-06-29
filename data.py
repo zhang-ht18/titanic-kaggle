@@ -1,47 +1,48 @@
 import pandas as pd
+import xgboost as xgb
+import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from xgboost.training import train
 train_set_path = "./train.csv"
 
 train_data = pd.read_csv(train_set_path)
-
-women = train_data.loc[train_data.Sex == 'female']['Survived']
-rate_women = sum(women) / len(women)
-print('{0} women survived'.format(rate_women))
-
-men = train_data.loc[train_data.Sex == 'male']['Survived']
-rate_men = sum(men) / len(men)
-print('{0} men survived'.format(rate_men))
-
-A_class = train_data.loc[train_data.Pclass == 1]['Survived']
-rate_A_class = sum(A_class) / len(A_class)
-print('{0} A class survived'.format(rate_A_class))
-
-B_class = train_data.loc[train_data.Pclass == 2]['Survived']
-rate_B_class = sum(B_class) / len(B_class)
-print('{0} B class survived'.format(rate_B_class))
-
-C_class = train_data.loc[train_data.Pclass == 3]['Survived']
-rate_C_class = sum(C_class) / len(C_class)
-print('{0} C class survived'.format(rate_C_class))
-
-S_destination = train_data.loc[train_data.Embarked == 'S']['Survived']
-rate_S_destination = sum(S_destination) / len(S_destination)
-print("{0} S destination survived".format(rate_S_destination))
-
-C_destination = train_data.loc[train_data.Embarked == 'C']['Survived']
-rate_C_destination = sum(C_destination) / len(C_destination)
-print("{0} C destination survived".format(rate_C_destination))
-
-Q_destination = train_data.loc[train_data.Embarked == 'Q']['Survived']
-rate_Q_destination = sum(Q_destination) / len(Q_destination)
-print("{0} Q destination survived".format(rate_Q_destination))
-
-cabin = train_data.loc[train_data["Age"].isnull() ]['Survived']
-rate_cabin = sum(cabin) / len(cabin)
-print(cabin)
-print("{0} with cabin survived".format(rate_cabin))
+test_data = pd.read_csv('./test.csv')
 
 
+train_x = train_data[["Pclass","Sex","Age","SibSp","Parch","Fare","Cabin","Embarked"]]
+train_y = train_data[["Survived"]]
+train_x = np.array(train_x)
+temp = train_x[:,6]
+for i in range(len(temp)):
+    if temp[i] != temp[i]:
+        temp[i] = 0
+    else:
+        temp[i] = 1
+for i in range(len(train_x[:, 1])):
+    if train_x[i][1] == 'male':
+        train_x[i][1] = 0
+    else:
+        train_x[i][1] = 1
+    if train_x[i][7] == 'C':
+        train_x[i][7] = 1
+    elif train_x[i][7] == 'S':
+        train_x[i][7] = 2
+    else:
+        train_x[i][7] = 3
+
+train_x[:,6] = temp
+age = train_x[:,2]
+train_y = np.array(train_y)
+train_x, test_x, train_y, test_y = train_test_split(train_x, train_y.ravel(), test_size = 0.2, random_state = 0)
+model = xgb.XGBClassifier()
+model.fit(train_x, train_y.ravel(), early_stopping_rounds=100, eval_metric="auc", eval_set=[(test_x,test_y)], verbose=True)
 
 
+y_pred = model.predict(test_x)
+predictions = [round(value) for value in y_pred]
+accuracy = accuracy_score(test_y, predictions)
+print("Accuracy: %.2f%%" % (accuracy * 100.0))
+model.save_model('test_1')
 
