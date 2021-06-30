@@ -1,15 +1,41 @@
+import pandas as pd
+import xgboost as xgb
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from xgboost.training import train
 
-from scipy.stats import norm
-power_coef = 2.5
-x = np.arange(0,2,0.01)
-y = (x ** power_coef / 0.8) - (x ** power_coef /1.2)
-rate = norm.cdf(x ** power_coef / 0.8-1) - norm.cdf(x ** power_coef/1.2-1)
-right_side = x ** power_coef / 0.8 - 1
-left_side = x ** power_coef / 1.2 - 1
+test_data = pd.read_csv('./test.csv')
 
-# plt.plot(x, left_side)
-# plt.plot(x, right_side)
-# plt.plot(x, y)
-# plt.show()
+test_x = test_data[["Pclass","Sex","Age","SibSp","Parch","Fare","Cabin","Embarked"]]
+passenger_id = test_data["PassengerId"]
+
+test_x = np.array(test_x)
+passenger_id = np.array(passenger_id)
+passenger_id.reshape(-1,1)
+print(passenger_id)
+for i in range(len(test_x[:, 1])):
+    if test_x[i][1] == 'male':
+        test_x[i][1] = 0
+    else:
+        test_x[i][1] = 1
+    if test_x[i][7] == 'C':
+        test_x[i][7] = 1
+    elif test_x[i][7] == 'S':
+        test_x[i][7] = 2
+    else:
+        test_x[i][7] = 3
+    if test_x[i][6] != test_x[i][6]:
+        test_x[i][6] = 0
+    else:
+        test_x[i][6] = 1
+
+model = xgb.XGBClassifier()
+model.load_model('test_1')
+y_pred = model.predict(test_x)
+predictions = [round(value) for value in y_pred]
+temp = pd.DataFrame({'PassengerId':passenger_id.tolist(), 'Survived':predictions})
+temp.to_csv("ans.csv",index=False,sep=',')
+
+
